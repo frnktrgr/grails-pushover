@@ -1,0 +1,17 @@
+/.idea
+*.iml
+*.iws
+/.settings
+/target
+/target-eclipse
+/web-app/WEB-INF
+grails-gscripting-*.zip
+grails-gscripting-*.zip.sha1
+plugin.xml
+.DS_Store
+*.log
+.classpath
+.project
+*.class
+.gradle/
+build/
