@@ -1,13 +1,19 @@
-// configuration for plugin testing - will not be included in the plugin zip
-
+if(!grails.config.locations || !(grails.config.locations instanceof List)) {
+	grails.config.locations = []
+}
+environments {
+	production {
+	}
+	test {
+		grails.config.locations << "file:${basedir}/grails-app/conf/PushoverDefaultConfig.groovy"
+		grails.config.locations << "file:${userHome}/.grails/config/pushover-config.groovy"
+	}
+	development {
+		grails.config.locations << "file:${basedir}/grails-app/conf/PushoverDefaultConfig.groovy"
+		grails.config.locations << "file:${userHome}/.grails/config/pushover-config.groovy"
+	}
+}
 log4j = {
-    // Example of changing the log pattern for the default console
-    // appender:
-    //
-    //appenders {
-    //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
-    //}
-
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
            'org.codehaus.groovy.grails.web.pages', //  GSP
            'org.codehaus.groovy.grails.web.sitemesh', //  layouts
@@ -19,4 +25,6 @@ log4j = {
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'
+    debug  'grails.plugin.pushover',
+		   'grails.app.services.grails.plugin.pushover'
 }

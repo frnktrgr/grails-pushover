@@ -5,8 +5,8 @@
 /target
 /target-eclipse
 /web-app/WEB-INF
-grails-gscripting-*.zip
-grails-gscripting-*.zip.sha1
+*.zip
+*.zip.sha1
 plugin.xml
 .DS_Store
 *.log
