@@ -9,12 +9,17 @@ import spock.lang.Specification
 @TestFor(PushoverService)
 class PushoverServiceSpec extends Specification {
 	
+	def testToken
+	def testUser
+	
 	static doWithConfig(c) {
 //		c.grails.pushover.messageUri="https://api.pushover.net/1/messages.json"
 	}
 
     def setup() {
 		grailsApplication.config.merge(new ConfigSlurper().parse(grailsApplication.classLoader.loadClass("PushoverDefaultConfig")))
+		testToken = grailsApplication.config.grails.pushover.test.token
+		testUser = grailsApplication.config.grails.pushover.test.user
     }
 
     def cleanup() {
@@ -22,9 +27,28 @@ class PushoverServiceSpec extends Specification {
 
     void "test message"() {
 		setup:
-		def token = grailsApplication.config.grails.pushover.test.token
-		def user = grailsApplication.config.grails.pushover.test.user
-		def result = service.message("hello world httpclient", [token:token, user:user])
+		def result = service.message("hello world httpclient", [token:testToken, user:testUser])
 		println result
+		
+		expect:
+		result.body.status == 1
     }
+	
+	void "test sound"() {
+		setup:
+		def result = service.sounds([token:testToken])
+		println result
+		
+		expect:
+		result.body.status == 1
+	}
+	
+	void "test validate user"() {
+		setup:
+		def result = service.validateUser(testUser, [token:testToken])
+		println result
+		
+		expect:
+		result.body.status == 1
+	}
 }
