@@ -2,6 +2,7 @@ package grails.plugin.pushover
 
 import grails.test.mixin.TestFor
 import spock.lang.Specification
+import org.apache.http.client.HttpResponseException;
 
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
@@ -50,5 +51,16 @@ class PushoverServiceSpec extends Specification {
 		
 		expect:
 		result.body.status == 1
+	}
+	
+	void "test validate incorrect user"() {
+		when:
+		service.validateUser(testUser+'FOO', [token:testToken])
+		
+		then:
+		HttpResponseException e = thrown(HttpResponseException)
+		println e.message
+		println e.statusCode
+		println e
 	}
 }
