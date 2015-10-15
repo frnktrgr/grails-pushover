@@ -12,6 +12,7 @@ class PushoverServiceSpec extends Specification {
 	
 	def testToken
 	def testUser
+	def testGroup
 	
 	static doWithConfig(c) {
 //		c.grails.pushover.messageUri="https://api.pushover.net/1/messages.json"
@@ -21,6 +22,7 @@ class PushoverServiceSpec extends Specification {
 		grailsApplication.config.merge(new ConfigSlurper().parse(grailsApplication.classLoader.loadClass("PushoverDefaultConfig")))
 		testToken = grailsApplication.config.grails.pushover.test.token
 		testUser = grailsApplication.config.grails.pushover.test.user
+		testGroup = grailsApplication.config.grails.pushover.test.group
     }
 
     def cleanup() {
@@ -53,6 +55,15 @@ class PushoverServiceSpec extends Specification {
 		result.body.status == 1
 	}
 	
+	void "test validate group"() {
+		setup:
+		def result = service.validateUser(testGroup, [token:testToken])
+		println result
+		
+		expect:
+		result.body.status == 1
+	}
+	
 	void "test validate incorrect user"() {
 		when:
 		service.validateUser(testUser+'FOO', [token:testToken])
@@ -62,5 +73,148 @@ class PushoverServiceSpec extends Specification {
 		println e.message
 		println e.statusCode
 		println e
+	}
+	
+	void "test group info"() {
+		setup:
+		def result = service.groups(testGroup, [token:testToken])
+		println result
+		
+		expect:
+		result.body.status == 1
+	}
+	
+	void "test group add and remove user"() {
+		setup:
+		def result = service.groups(testGroup, [token:testToken])
+		println result
+		def users = result.body.users
+		def noUsers = users.size()
+		def candidate = users.first()
+		if (!users) {
+			throw new Exception("need a non empty group")
+		}
+		
+		expect:
+		result.body.status == 1
+		
+		when:
+		result = service.groupsDeleteUser(testGroup, candidate.user, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+
+		when:
+		result = service.groups(testGroup, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+		result.body.users.size() == noUsers - 1
+		result.body.users*.user.contains(candidate.user) == false
+		
+		when:
+		result = service.groupsAddUser(testGroup, candidate.user, [token:testToken, memo:'foobar'])
+		println result
+		
+		then:
+		result.body.status == 1
+		
+		when:
+		result = service.groups(testGroup, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+		result.body.users.size() == noUsers
+		result.body.users*.user.contains(candidate.user) == true
+		
+	}
+	
+	void "test group enable and disable user"() {
+		setup:
+		def result = service.groups(testGroup, [token:testToken])
+		println result
+		def users = result.body.users
+		def noUsers = users.size()
+		def candidate = users.find {!it.disabled}
+		if (!users) {
+			throw new Exception("need a group with at least one enabled user")
+		}
+		
+		expect:
+		result.body.status == 1
+		
+		when:
+		result = service.groupsDisableUser(testGroup, candidate.user, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+
+		when:
+		result = service.groups(testGroup, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+		result.body.users.find{it.user == candidate.user}.disabled == true
+		
+		when:
+		result = service.groupsEnableUser(testGroup, candidate.user, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+		
+		when:
+		result = service.groups(testGroup, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+		result.body.users.find{it.user == candidate.user}.disabled == false
+		
+	}
+	
+	void "test group rename"() {
+		setup:
+		def result = service.groups(testGroup, [token:testToken])
+		println result
+		def name = result.body.name
+		
+		expect:
+		result.body.status == 1
+		
+		when:
+		result = service.groupsRename(testGroup, "foobar", [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+
+		when:
+		result = service.groups(testGroup, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+		result.body.name == "foobar"
+		
+		when:
+		result = service.groupsRename(testGroup, name, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+		
+		when:
+		result = service.groups(testGroup, [token:testToken])
+		println result
+		
+		then:
+		result.body.status == 1
+		result.body.name == name
 	}
 }
