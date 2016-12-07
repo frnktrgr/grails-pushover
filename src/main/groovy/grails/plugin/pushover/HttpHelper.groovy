@@ -2,7 +2,7 @@ package grails.plugin.pushover
 
 import java.nio.charset.Charset;
 
-import org.apache.commons.io.IOUtils;
+//import org.apache.commons.io.IOUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;

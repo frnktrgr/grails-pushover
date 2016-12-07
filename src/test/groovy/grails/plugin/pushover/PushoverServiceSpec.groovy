@@ -4,6 +4,13 @@ import grails.test.mixin.TestFor
 import spock.lang.Specification
 import org.apache.http.client.HttpResponseException;
 
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean
+import org.springframework.context.EnvironmentAware
+import org.springframework.core.env.Environment
+import org.springframework.core.env.PropertiesPropertySource
+import org.springframework.core.io.FileSystemResource
+import org.springframework.core.io.Resource
+
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
@@ -19,10 +26,19 @@ class PushoverServiceSpec extends Specification {
 	}
 
     def setup() {
+		String configPath = System.getProperty("user.home")+"/.grails/config/pushover-config.yml" //System.properties["local.config.location"]
+		Resource resourceConfig = new FileSystemResource(configPath)
+		YamlPropertiesFactoryBean ypfb = new YamlPropertiesFactoryBean()
+		ypfb.setResources([resourceConfig] as Resource[])
+		ypfb.afterPropertiesSet()
+		Properties properties = ypfb.getObject()
 		grailsApplication.config.merge(new ConfigSlurper().parse(grailsApplication.classLoader.loadClass("PushoverDefaultConfig")))
-		testToken = grailsApplication.config.grails.pushover.test.token
-		testUser = grailsApplication.config.grails.pushover.test.user
-		testGroup = grailsApplication.config.grails.pushover.test.group
+		//testToken = grailsApplication.config.grails.pushover.test.token
+		//testUser = grailsApplication.config.grails.pushover.test.user
+		//testGroup = grailsApplication.config.grails.pushover.test.group
+		testToken = properties['grails.pushover.test.token']
+		testUser = properties['grails.pushover.test.user']
+		testGroup = properties['grails.pushover.test.group']
     }
 
     def cleanup() {
