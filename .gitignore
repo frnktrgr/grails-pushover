@@ -9,3 +9,7 @@ build/
 .project
 .settings
 .classpath
+*.zip
+/target
+/web-app/WEB-INF
+plugin.xml
