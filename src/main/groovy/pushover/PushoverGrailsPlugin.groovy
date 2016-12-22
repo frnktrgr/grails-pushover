@@ -7,7 +7,7 @@ class PushoverGrailsPlugin extends Plugin {
     def title = "Pushover"
     def author = "Frank Tröger"
     def authorEmail = "frnktrgr@gmail.com"
-    def description = 'Provide easy access to Puschover API'
+    def description = 'Provides easy access to Pushover API'
     def profiles = ['web']
     def documentation = "https://github.com/frnktrgr/grails-pushover"
     def license = "APACHE"
